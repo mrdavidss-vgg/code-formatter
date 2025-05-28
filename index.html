@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Formatter V1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --panel-bg: #e0e0e0;
+            --border-color: #d0d0d0;
+            --text-color: #333;
+            --button-bg: #C0C0C0;
+            --button-hover: #808080;
+            --button-active: #A9A9A9;
+            --header-bg: #d8d8d8;
+            --button-text: white;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: var(--header-bg);
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .editor-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .editor-panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--panel-bg);
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .panel-header {
+            padding: 10px;
+            background-color: var(--header-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-weight: 500;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button:hover {
+            background: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            background: var(--button-active);
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .code-area {
+            flex: 1;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            resize: none;
+            min-height: 300px;
+            white-space: pre;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .formatted-container {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--panel-bg);
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .formatted-area {
+            flex: 1;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            overflow-x: auto;
+            min-height: 300px;
+            white-space: pre;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                flex-direction: column;
+            }
+            
+            .editor-panel, .formatted-container {
+                min-width: 100%;
+            }
+
+            button {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Code Formatter</h1>
+        
+        <div class="editor-container">
+            <div class="editor-panel">
+                <div class="panel-header">
+                    <div class="panel-title">Input Code</div>
+                    <div class="panel-actions">
+                        <button id="formatBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="4 17 10 11 4 5"></polyline>
+                                <line x1="12" y1="19" x2="20" y2="19"></line>
+                            </svg>
+                            Format
+                        </button>
+                        <button id="clearInputBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+                <textarea class="code-area" id="inputCode" placeholder="Paste your unformatted code here..."></textarea>
+            </div>
+            
+            <div class="formatted-container">
+                <div class="panel-header">
+                    <div class="panel-title">Formatted Code</div>
+                    <div class="panel-actions">
+                        <button id="copyBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Copy
+                        </button>
+                        <button id="clearOutputBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+                <pre class="formatted-area" id="formattedCode"></pre>
+            </div>
+        </div>
+    </div>
+
+  <footer>
+    You can copy the src under the MIT License. <a href="https://github.com/mrdavidss-vgg/" target="_blank" title="Visit Example.com">My Github</a>
+  </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputCode = document.getElementById('inputCode');
+            const formattedCode = document.getElementById('formattedCode');
+            const formatBtn = document.getElementById('formatBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const clearInputBtn = document.getElementById('clearInputBtn');
+            const clearOutputBtn = document.getElementById('clearOutputBtn');
+
+            formatBtn.addEventListener('click', function() {
+                const code = inputCode.value.trim();
+                if (!code) return;
+                
+                try {
+                    try {
+                        const json = JSON.parse(code);
+                        formattedCode.textContent = JSON.stringify(json, null, 2);
+                        return;
+                    } catch (e) {
+                    }
+                    
+                    if (code.includes('<') && code.includes('>')) {
+                        formattedCode.textContent = formatHTML(code);
+                        return;
+                    }
+                    
+                    if (code.includes('{') && code.includes('}') && code.includes(':')) {
+                        formattedCode.textContent = formatCSS(code);
+                        return;
+                    }
+                    
+                    if (code.includes('function') || code.includes('=>') || code.includes('const') || 
+                        code.includes('let') || code.includes('var')) {
+                        formattedCode.textContent = formatJS(code);
+                        return;
+                    }
+                    
+                    formattedCode.textContent = code.replace(/([>}])([<{])/g, '$1\n$2');
+                } catch (error) {
+                    formattedCode.textContent = "Error formatting code:\n" + error.message;
+                }
+            });
+
+            copyBtn.addEventListener('click', function() {
+                const text = formattedCode.textContent;
+                if (!text) return;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = copyBtn.innerHTML;
+                    copyBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Copied!
+                    `;
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                    }, 2000);
+                });
+            });
+
+            clearInputBtn.addEventListener('click', function() {
+                inputCode.value = '';
+            });
+            
+            clearOutputBtn.addEventListener('click', function() {
+                formattedCode.textContent = '';
+            });
+
+            function formatHTML(html) {
+                let formatted = '';
+                let indent = 0;
+                let inTag = false;
+                let inAttribute = false;
+                
+                html = html.replace(/></g, '>\n<');
+                
+                html.split('\n').forEach(line => {
+                    line = line.trim();
+                    if (!line) return;
+                    
+                    if (line.startsWith('</')) {
+                        indent--;
+                    }
+                    
+                    formatted += '  '.repeat(indent) + line + '\n';
+                    
+                    if (line.startsWith('<') && !line.startsWith('</') && !line.endsWith('/>')) {
+                        indent++;
+                    }
+                });
+                
+                return formatted;
+            }
+            
+            function formatCSS(css) {
+                css = css.replace(/\s*([{}:;,])\s*/g, '$1');
+                css = css.replace(/;}/g, '}');
+                css = css.replace(/{/g, '{\n  ');
+                css = css.replace(/}/g, '\n}\n');
+                css = css.replace(/;/g, ';\n  ');
+                css = css.replace(/,\s*/g, ', ');
+                return css.trim();
+            }
+            
+            function formatJS(js) {
+                js = js.replace(/([;{}])\s*/g, '$1\n');
+                js = js.replace(/\s*([=+<>-])\s*/g, ' $1 ');
+                return js.trim();
+            }
+        });
+    </script>
+</body>
+</html>
